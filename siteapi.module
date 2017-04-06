@@ -1,0 +1,78 @@
+<?php
+
+
+/**
+ * @file
+ * This is the Site API  module for
+ * 1. Setting a site wide API key,
+ * 2. JSON representation of a node type page using the site API key.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function siteapi_form_system_site_information_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  // Create Site API Details Container.
+  $form['site_api'] = [
+    '#type' => 'details',
+    '#title' => t('Site API Details'),
+    '#open' => TRUE,
+    '#weight' => 10,
+  ];
+
+  // Get the API Key configuration
+  $config = \Drupal::config('siteapi.settings');
+
+  // Check whether the API value is set by the user or empty.
+  if( empty($config->get('siteapikey')) ) {
+    // No API Key has been set yet
+    $site_api = t('No API Key yet');
+  }
+  else {
+    // User has set a Site API Key
+    $site_api =  $config->get('siteapikey');
+  }
+
+  // Create Site API Key Textfield
+  $form['site_api']['site_api_key'] = [
+    '#type' => 'textfield',
+    '#title' => t('Site API Key'),
+    '#default_value' => $site_api,
+  ];
+
+
+  // Change the text of "Save configuration" button to "Update Configuration".
+  if ( !empty($config->get('siteapikey')) && $site_api != 'No API Key yet' ) {
+    $form['actions']['submit']['#value'] = t('Update Configuration');
+  }
+
+  // Add custom submit handler
+  $form['#submit'][] = 'siteapi_system_site_information_settings_submit_handler';
+
+}
+
+
+/**
+ * Custom Submit handler for FormID system_site_information_settings.
+ */
+function siteapi_system_site_information_settings_submit_handler(&$form,\Drupal\Core\Form\FormStateInterface $form_state ) {
+
+  // Get the value from Form State
+  $site_api_key = $form_state->getValue('site_api_key');
+
+  // Set the siteapikey value using configuration API.
+  \Drupal::configFactory()->getEditable('siteapi.settings')->set('siteapikey', $site_api_key)->save();;
+
+
+  // Show a warning message if the user enters and saves an empty API Key value.
+  if (empty($site_api_key) || $site_api_key === 'No API Key yet' ) {
+    drupal_set_message(t('You have not set your Site\'s API Key. Please set the API key below and Save Configuration.'), 'warning');
+  }
+
+  // Inform the user that the Site API Key has been saved successfully.
+  else {
+    drupal_set_message(t('You have successfully set your Site\'s API Key to  @site_api_key .', array('@site_api_key' => $site_api_key)));
+  }
+
+}
