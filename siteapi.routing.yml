@@ -1,0 +1,7 @@
+siteapi_json_url:
+  path: 'page_json/{api_key}/{id}'
+  defaults:
+    _title: 'JSON Page Node Endpoint'
+    _controller: '\Drupal\siteapi\Controller\JSONController::render_json'
+  requirements:
+    _permission: 'access content'
