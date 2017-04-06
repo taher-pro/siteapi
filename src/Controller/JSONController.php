@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class JSONController extends ControllerBase {
 
   /**
-   * Perform tasks when a batch is complete.
-   *
-   * Callback for batch_set().
+   * Function to render JSON output for page node type.
    *
    * @param $api_key
    *   A String passed from the request URL
